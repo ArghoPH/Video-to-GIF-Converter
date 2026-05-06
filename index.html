@@ -34,6 +34,8 @@
     .handle.tl { left: -8px; top: -8px; cursor: nwse-resize; }
     .handle.tr { right: -8px; top: -8px; cursor: nesw-resize; }
     .handle.bl { left: -8px; bottom: -8px; cursor: nesw-resize; }
+    .drag-over { border-color: rgba(34, 211, 238, 0.8) !important; }
+    .drag-over #dropLayer { opacity: 1; }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-white">
@@ -54,10 +56,28 @@
 
     <section class="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
       <div class="rounded-3xl bg-slate-900 p-4 shadow-xl ring-1 ring-white/10">
-        <div id="stage" class="relative overflow-hidden rounded-2xl border-2 border-dashed border-transparent bg-black transition">
-          <div id="dropHint" class="absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-6 text-center text-lg font-semibold text-white opacity-0 pointer-events-none transition">Drop your video here</div>
-          <video id="video" class="mx-auto block w-full" controls playsinline></video>
-          <div id="cropBox" class="crop-box hidden" style="left: 10%; top: 10%; width: 80%; height: 80%;">
+        <div id="stage" class="relative overflow-hidden rounded-[1.5rem] border-2 border-dashed border-white/10 bg-black pb-20 transition">
+          <div id="dropLayer" class="pointer-events-none absolute inset-0 z-20 grid place-items-center bg-black/70 p-8 text-center opacity-0 transition">
+            <div>
+              <div class="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-3xl bg-cyan-400 text-4xl text-slate-950">⬇</div>
+              <p class="text-2xl font-black">Drop video here</p>
+              <p class="mt-2 text-slate-300">Large files are loaded by local reference, not uploaded.</p>
+            </div>
+          </div>
+
+          <video id="video" class="mx-auto block w-full rounded-b-none" playsinline preload="metadata"></video>
+
+          <div class="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-between border-t border-white/10 bg-slate-950/95 px-4 py-3">
+            <div class="flex items-center gap-3">
+              <button id="playPauseBtn" type="button" class="rounded-xl bg-cyan-400 px-4 py-2 font-black text-slate-950 hover:bg-cyan-300">▶ Play</button>
+              <button id="muteBtn" type="button" class="rounded-xl bg-slate-800 px-4 py-2 font-black hover:bg-slate-700">🔊</button>
+            </div>
+            <div class="text-sm text-slate-300">
+              <span id="currentTime">0.00s</span>
+            </div>
+          </div>
+
+          <div id="cropBox" class="crop-box hidden" style="left:0px;top:0px;width:100px;height:100px;">
             <span class="handle tl" data-handle="tl"></span>
             <span class="handle tr" data-handle="tr"></span>
             <span class="handle bl" data-handle="bl"></span>
@@ -82,14 +102,64 @@
 
         <div class="space-y-4">
           <label class="block">
-            <span class="mb-1 block text-sm font-medium text-slate-300">Start Time (seconds)</span>
-            <input id="startTime" type="number" min="0" step="0.1" value="0" class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400" />
-          </label>
+  <div class="mb-2 flex items-center justify-between">
+    <span class="text-sm font-medium text-slate-300">
+      Start Time
+    </span>
 
-          <label class="block">
-            <span class="mb-1 block text-sm font-medium text-slate-300">End Time (seconds)</span>
-            <input id="endTime" type="number" min="0" step="0.1" value="3" class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400" />
-          </label>
+    <button
+      type="button"
+      id="setStartCurrent"
+      class="rounded-lg bg-slate-800 px-3 py-1 text-xs font-bold hover:bg-slate-700"
+    >
+      Use Current
+    </button>
+  </div>
+
+  <input
+    id="startTime"
+    type="number"
+    min="0"
+    step="0.1"
+    value="0"
+    class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400"
+  />
+</label>
+
+         <label class="block">
+  <div class="mb-2 flex items-center justify-between">
+    <span class="text-sm font-medium text-slate-300">
+      End Time
+    </span>
+
+    <div class="flex gap-2">
+      <button
+        type="button"
+        id="setEndCurrent"
+        class="rounded-lg bg-slate-800 px-3 py-1 text-xs font-bold hover:bg-slate-700"
+      >
+        Use Current
+      </button>
+
+      <button
+        type="button"
+        id="setEndFull"
+        class="rounded-lg bg-green-500 px-3 py-1 text-xs font-bold text-slate-950 hover:bg-green-400"
+      >
+        Full Length
+      </button>
+    </div>
+  </div>
+
+  <input
+    id="endTime"
+    type="number"
+    min="0"
+    step="0.1"
+    value="3"
+    class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400"
+  />
+</label>
 
           <div class="rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-300">
             Frame rate is handled automatically with a safe smooth setting. No FPS setup needed.
@@ -144,6 +214,10 @@
     const videoInput = document.getElementById('videoInput');
     const video = document.getElementById('video');
     const stage = document.getElementById('stage');
+    const dropLayer = document.getElementById('dropLayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const currentTimeText = document.getElementById('currentTime');
     const cropBox = document.getElementById('cropBox');
     const generateBtn = document.getElementById('generateBtn');
     const statusText = document.getElementById('status');
@@ -156,24 +230,6 @@
 
     let videoURL = null;
     let dragState = null;
-
-    function loadVideoFile(file) {
-      if (!file) return;
-      if (!file.type.startsWith('video/')) {
-        setStatus('Please drop or choose a video file.', 0);
-        return;
-      }
-      if (videoURL) URL.revokeObjectURL(videoURL);
-      videoURL = URL.createObjectURL(file);
-      video.src = videoURL;
-      resultSection.classList.add('hidden');
-      const sizeGB = file.size / 1024 / 1024 / 1024;
-      const name = file.name.toLowerCase();
-      const likelyPlayable = ['.mp4', '.webm', '.mov', '.m4v', '.ogg', '.ogv'].some(ext => name.endsWith(ext));
-      const warning = sizeGB >= 4 ? ` Large file detected: ${sizeGB.toFixed(2)} GB. Keep GIF duration short.` : '';
-      const formatNote = likelyPlayable ? '' : ' If preview does not load, your browser cannot decode this format.';
-      setStatus(`Video selected: ${file.name}.${warning}${formatNote}`, 0);
-    }
 
     function setStatus(message, progress = null) {
       statusText.textContent = message;
@@ -285,6 +341,29 @@
       cropBox.style.height = `${newHeight}px`;
     }
 
+    function loadVideoFile(file) {
+      if (!file) return;
+
+      if (!file.type.startsWith('video/')) {
+        setStatus('Please drop or choose a valid video file.', 0);
+        return;
+      }
+
+      if (videoURL) URL.revokeObjectURL(videoURL);
+      videoURL = URL.createObjectURL(file);
+      video.src = videoURL;
+      resultSection.classList.add('hidden');
+      playPauseBtn.textContent = '▶ Play';
+      currentTimeText.textContent = '0.00s';
+
+      const sizeGB = file.size / 1024 / 1024 / 1024;
+      const name = file.name.toLowerCase();
+      const likelyPlayable = ['.mp4', '.webm', '.mov', '.m4v', '.ogg', '.ogv'].some(ext => name.endsWith(ext));
+      const warning = sizeGB >= 4 ? ` Large file detected: ${sizeGB.toFixed(2)} GB. Keep GIF duration short.` : '';
+      const formatNote = likelyPlayable ? '' : ' If preview does not load, your browser cannot decode this format.';
+      setStatus(`Video selected: ${file.name}.${warning}${formatNote}`, 0);
+    }
+
     videoInput.addEventListener('change', event => {
       loadVideoFile(event.target.files[0]);
     });
@@ -292,26 +371,51 @@
     ['dragenter', 'dragover'].forEach(eventName => {
       stage.addEventListener(eventName, event => {
         event.preventDefault();
-        stage.classList.add('border-green-400');
-        document.getElementById('dropHint').classList.remove('opacity-0');
+        if (event.dataTransfer && Array.from(event.dataTransfer.types || []).includes('Files')) {
+          stage.classList.add('drag-over');
+        }
       });
     });
 
     ['dragleave', 'drop'].forEach(eventName => {
       stage.addEventListener(eventName, event => {
         event.preventDefault();
-        stage.classList.remove('border-green-400');
-        document.getElementById('dropHint').classList.add('opacity-0');
+        if (eventName === 'drop') {
+          loadVideoFile(event.dataTransfer.files[0]);
+        }
+        stage.classList.remove('drag-over');
       });
     });
 
-    stage.addEventListener('drop', event => {
-      const file = event.dataTransfer.files[0];
-      loadVideoFile(file);
+    function updatePlayButton() {
+      playPauseBtn.textContent = video.paused ? '▶ Play' : '⏸ Pause';
+    }
+
+    playPauseBtn.addEventListener('click', async () => {
+      if (!video.src) {
+        setStatus('Please upload a video first.', 0);
+        return;
+      }
+
+      if (video.paused) {
+        await video.play();
+      } else {
+        video.pause();
+      }
+      updatePlayButton();
     });
 
-    document.body.addEventListener('dragover', event => event.preventDefault());
-    document.body.addEventListener('drop', event => event.preventDefault());
+    muteBtn.addEventListener('click', () => {
+      video.muted = !video.muted;
+      muteBtn.textContent = video.muted ? '🔇' : '🔊';
+    });
+
+    video.addEventListener('play', updatePlayButton);
+    video.addEventListener('pause', updatePlayButton);
+    video.addEventListener('ended', updatePlayButton);
+    video.addEventListener('timeupdate', () => {
+      currentTimeText.textContent = `${video.currentTime.toFixed(2)}s`;
+    });
 
     video.addEventListener('loadedmetadata', () => {
       document.getElementById('endTime').value = Math.min(3, video.duration).toFixed(1);
@@ -451,6 +555,27 @@
         generateBtn.disabled = false;
       }
     });
+
+    document.getElementById('setStartCurrent').addEventListener('click', () => {
+  document.getElementById('startTime').value =
+    video.currentTime.toFixed(1);
+});
+
+document.getElementById('setEndCurrent').addEventListener('click', () => {
+  document.getElementById('endTime').value =
+    video.currentTime.toFixed(1);
+});
+
+document.getElementById('setEndFull').addEventListener('click', () => {
+  if (!Number.isFinite(video.duration)) {
+    setStatus('Please upload a video first.', 0);
+    return;
+  }
+
+  document.getElementById('endTime').value = video.duration.toFixed(1);
+  setStatus(`End Time set to full video length: ${video.duration.toFixed(1)}s.`, null);
+});
+
   </script>
 </body>
 </html>
