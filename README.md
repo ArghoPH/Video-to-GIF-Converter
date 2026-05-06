@@ -187,7 +187,7 @@ MIT License
 
 # 👨‍💻 Developer
 
-Made with ❤️ by **ArghoPH**
+Made by **ArghoPH**
 
 ---
 
