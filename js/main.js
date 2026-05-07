@@ -264,7 +264,7 @@
 
       const start = Number(document.getElementById('startTime').value);
       const end = Number(document.getElementById('endTime').value);
-      const fps = 12;
+      const fps = 30;
       const quality = Number(document.getElementById('quality').value);
       const widthSetting = document.getElementById('outputWidth').value;
 
