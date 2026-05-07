@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,8 +14,14 @@
     const GIF_WORKER_URL = URL.createObjectURL(new Blob([GIF_WORKER_CODE], { type: 'application/javascript' }));
   </script>
   <style>
-    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    video { max-height: 58vh; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    video {
+      max-height: 58vh;
+    }
+
     .crop-box {
       position: absolute;
       border: 2px dashed #22c55e;
@@ -22,6 +29,7 @@
       cursor: move;
       box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
     }
+
     .handle {
       position: absolute;
       width: 14px;
@@ -30,14 +38,41 @@
       border-radius: 999px;
       border: 2px solid white;
     }
-    .handle.br { right: -8px; bottom: -8px; cursor: nwse-resize; }
-    .handle.tl { left: -8px; top: -8px; cursor: nwse-resize; }
-    .handle.tr { right: -8px; top: -8px; cursor: nesw-resize; }
-    .handle.bl { left: -8px; bottom: -8px; cursor: nesw-resize; }
-    .drag-over { border-color: rgba(34, 211, 238, 0.8) !important; }
-    .drag-over #dropLayer { opacity: 1; }
+
+    .handle.br {
+      right: -8px;
+      bottom: -8px;
+      cursor: nwse-resize;
+    }
+
+    .handle.tl {
+      left: -8px;
+      top: -8px;
+      cursor: nwse-resize;
+    }
+
+    .handle.tr {
+      right: -8px;
+      top: -8px;
+      cursor: nesw-resize;
+    }
+
+    .handle.bl {
+      left: -8px;
+      bottom: -8px;
+      cursor: nesw-resize;
+    }
+
+    .drag-over {
+      border-color: rgba(34, 211, 238, 0.8) !important;
+    }
+
+    .drag-over #dropLayer {
+      opacity: 1;
+    }
   </style>
 </head>
+
 <body class="min-h-screen bg-slate-950 text-white">
   <main class="mx-auto max-w-6xl px-4 py-8">
     <section class="mb-8 rounded-3xl bg-slate-900/80 p-6 shadow-2xl ring-1 ring-white/10">
@@ -45,9 +80,12 @@
         <div>
           <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-green-400">Local Browser Tool by Argho</p>
           <h1 class="text-3xl font-bold md:text-5xl">Video to GIF Converter</h1>
-          <p class="mt-3 max-w-2xl text-slate-300">Upload a video, crop freely, choose quality, then export and download your GIF. Files stay local in your browser. For 4GB+ videos, use a short time range for best performance.</p>
+          <p class="mt-3 max-w-2xl text-slate-300">Upload a video, crop freely, choose quality, then export and download
+            your GIF. Files stay local in your browser. For 4GB+ videos, use a short time range for best performance.
+          </p>
         </div>
-        <label class="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-green-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-green-400">
+        <label
+          class="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-green-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-green-400">
           Choose Video
           <input id="videoInput" type="file" accept="video/*" class="hidden" />
         </label>
@@ -56,10 +94,14 @@
 
     <section class="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
       <div class="rounded-3xl bg-slate-900 p-4 shadow-xl ring-1 ring-white/10">
-        <div id="stage" class="relative overflow-hidden rounded-[1.5rem] border-2 border-dashed border-white/10 bg-black pb-20 transition">
-          <div id="dropLayer" class="pointer-events-none absolute inset-0 z-20 grid place-items-center bg-black/70 p-8 text-center opacity-0 transition">
+        <div id="stage"
+          class="relative overflow-hidden rounded-[1.5rem] border-2 border-dashed border-white/10 bg-black pb-20 transition">
+          <div id="dropLayer"
+            class="pointer-events-none absolute inset-0 z-20 grid place-items-center bg-black/70 p-8 text-center opacity-0 transition">
             <div>
-              <div class="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-3xl bg-cyan-400 text-4xl text-slate-950">⬇</div>
+              <div
+                class="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-3xl bg-cyan-400 text-4xl text-slate-950">⬇
+              </div>
               <p class="text-2xl font-black">Drop video here</p>
               <p class="mt-2 text-slate-300">Large files are loaded by local reference, not uploaded.</p>
             </div>
@@ -67,10 +109,13 @@
 
           <video id="video" class="mx-auto block w-full rounded-b-none" playsinline preload="metadata"></video>
 
-          <div class="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-between border-t border-white/10 bg-slate-950/95 px-4 py-3">
+          <div
+            class="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-between border-t border-white/10 bg-slate-950/95 px-4 py-3">
             <div class="flex items-center gap-3">
-              <button id="playPauseBtn" type="button" class="rounded-xl bg-cyan-400 px-4 py-2 font-black text-slate-950 hover:bg-cyan-300">▶ Play</button>
-              <button id="muteBtn" type="button" class="rounded-xl bg-slate-800 px-4 py-2 font-black hover:bg-slate-700">🔊</button>
+              <button id="playPauseBtn" type="button"
+                class="rounded-xl bg-cyan-400 px-4 py-2 font-black text-slate-950 hover:bg-cyan-300">▶ Play</button>
+              <button id="muteBtn" type="button"
+                class="rounded-xl bg-slate-800 px-4 py-2 font-black hover:bg-slate-700">🔊</button>
             </div>
             <div class="text-sm text-slate-300">
               <span id="currentTime">0.00s</span>
@@ -86,9 +131,12 @@
         </div>
 
         <div class="mt-4 grid gap-3 sm:grid-cols-3">
-          <button id="fullCropBtn" class="rounded-xl bg-slate-800 px-4 py-3 font-semibold hover:bg-slate-700">Full Video Crop</button>
-          <button id="squareCropBtn" class="rounded-xl bg-slate-800 px-4 py-3 font-semibold hover:bg-slate-700">Square Crop</button>
-          <button id="centerCropBtn" class="rounded-xl bg-slate-800 px-4 py-3 font-semibold hover:bg-slate-700">Center 16:9 Crop</button>
+          <button id="fullCropBtn" class="rounded-xl bg-slate-800 px-4 py-3 font-semibold hover:bg-slate-700">Full Video
+            Crop</button>
+          <button id="squareCropBtn" class="rounded-xl bg-slate-800 px-4 py-3 font-semibold hover:bg-slate-700">Square
+            Crop</button>
+          <button id="centerCropBtn" class="rounded-xl bg-slate-800 px-4 py-3 font-semibold hover:bg-slate-700">Center
+            16:9 Crop</button>
         </div>
       </div>
 
@@ -97,69 +145,50 @@
 
         <div class="mb-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-100">
           <p class="font-semibold">Heavy video note</p>
-          <p class="mt-1">This browser version supports formats your browser can play, like MP4/WebM/MOV depending on device/browser. 4GB+ files can work because the file is referenced locally, but exporting a long high-resolution GIF can freeze the browser. Convert 2–8 seconds at a time.</p>
+          <p class="mt-1">This browser version supports formats your browser can play, like MP4/WebM/MOV depending on
+            device/browser. 4GB+ files can work because the file is referenced locally, but exporting a long
+            high-resolution GIF can freeze the browser. Convert 2–8 seconds at a time.</p>
         </div>
 
         <div class="space-y-4">
           <label class="block">
-  <div class="mb-2 flex items-center justify-between">
-    <span class="text-sm font-medium text-slate-300">
-      Start Time
-    </span>
+            <div class="mb-2 flex items-center justify-between">
+              <span class="text-sm font-medium text-slate-300">
+                Start Time
+              </span>
 
-    <button
-      type="button"
-      id="setStartCurrent"
-      class="rounded-lg bg-slate-800 px-3 py-1 text-xs font-bold hover:bg-slate-700"
-    >
-      Use Current
-    </button>
-  </div>
+              <button type="button" id="setStartCurrent"
+                class="rounded-lg bg-slate-800 px-3 py-1 text-xs font-bold hover:bg-slate-700">
+                Use Current
+              </button>
+            </div>
 
-  <input
-    id="startTime"
-    type="number"
-    min="0"
-    step="0.1"
-    value="0"
-    class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400"
-  />
-</label>
+            <input id="startTime" type="number" min="0" step="0.1" value="0"
+              class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400" />
+          </label>
 
-         <label class="block">
-  <div class="mb-2 flex items-center justify-between">
-    <span class="text-sm font-medium text-slate-300">
-      End Time
-    </span>
+          <label class="block">
+            <div class="mb-2 flex items-center justify-between">
+              <span class="text-sm font-medium text-slate-300">
+                End Time
+              </span>
 
-    <div class="flex gap-2">
-      <button
-        type="button"
-        id="setEndCurrent"
-        class="rounded-lg bg-slate-800 px-3 py-1 text-xs font-bold hover:bg-slate-700"
-      >
-        Use Current
-      </button>
+              <div class="flex gap-2">
+                <button type="button" id="setEndCurrent"
+                  class="rounded-lg bg-slate-800 px-3 py-1 text-xs font-bold hover:bg-slate-700">
+                  Use Current
+                </button>
 
-      <button
-        type="button"
-        id="setEndFull"
-        class="rounded-lg bg-green-500 px-3 py-1 text-xs font-bold text-slate-950 hover:bg-green-400"
-      >
-        Full Length
-      </button>
-    </div>
-  </div>
+                <button type="button" id="setEndFull"
+                  class="rounded-lg bg-green-500 px-3 py-1 text-xs font-bold text-slate-950 hover:bg-green-400">
+                  Full Length
+                </button>
+              </div>
+            </div>
 
-  <input
-    id="endTime"
-    type="number"
-    min="0"
-    step="0.1"
-    value="3"
-    class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400"
-  />
-</label>
+            <input id="endTime" type="number" min="0" step="0.1" value="3"
+              class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400" />
+          </label>
 
           <div class="rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-300">
             Frame rate is handled automatically with a safe smooth setting. No FPS setup needed.
@@ -167,7 +196,8 @@
 
           <label class="block">
             <span class="mb-1 block text-sm font-medium text-slate-300">Output Width</span>
-            <select id="outputWidth" class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400">
+            <select id="outputWidth"
+              class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400">
               <option value="original">Original Crop Width</option>
               <option value="2160">2160px / 4K Crop</option>
               <option value="1440">1440px / 2K Crop</option>
@@ -180,14 +210,17 @@
 
           <label class="block">
             <span class="mb-1 block text-sm font-medium text-slate-300">Quality</span>
-            <select id="quality" class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400">
+            <select id="quality"
+              class="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 outline-none focus:border-green-400">
               <option value="1">Best / Larger File</option>
               <option value="5" selected>Balanced</option>
               <option value="10">Smaller File</option>
             </select>
           </label>
 
-          <button id="generateBtn" class="w-full rounded-2xl bg-green-500 px-5 py-3 font-bold text-slate-950 transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-50">Generate GIF</button>
+          <button id="generateBtn"
+            class="w-full rounded-2xl bg-green-500 px-5 py-3 font-bold text-slate-950 transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-50">Generate
+            GIF</button>
         </div>
 
         <div class="mt-5 rounded-2xl bg-slate-950 p-4">
@@ -202,7 +235,9 @@
     <section id="resultSection" class="mt-6 hidden rounded-3xl bg-slate-900 p-5 shadow-xl ring-1 ring-white/10">
       <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 class="text-2xl font-bold">Your GIF</h2>
-        <a id="downloadBtn" class="rounded-2xl bg-white px-5 py-3 text-center font-bold text-slate-950 hover:bg-slate-200" download="converted.gif">Download GIF</a>
+        <a id="downloadBtn"
+          class="rounded-2xl bg-white px-5 py-3 text-center font-bold text-slate-950 hover:bg-slate-200"
+          download="converted.gif">Download GIF</a>
       </div>
       <img id="gifPreview" class="max-w-full rounded-2xl border border-white/10" alt="Generated GIF preview" />
     </section>
@@ -212,4 +247,5 @@
 
   <script src="js/main.js"></script>
 </body>
+
 </html>
