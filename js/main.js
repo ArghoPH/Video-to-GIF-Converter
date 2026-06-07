@@ -206,7 +206,7 @@
     });
 
     video.addEventListener('loadedmetadata', () => {
-      document.getElementById('endTime').value = Math.min(3, video.duration).toFixed(1);
+      document.getElementById('endTime').value = Math.min(6, video.duration).toFixed(1);
       setTimeout(() => setCropPreset('full'), 50);
       setStatus(`Loaded: ${video.videoWidth}x${video.videoHeight}, duration ${video.duration.toFixed(1)}s. GIF will use automatic smooth timing.`, 0);
     });
@@ -264,7 +264,7 @@
 
       const start = Number(document.getElementById('startTime').value);
       const end = Number(document.getElementById('endTime').value);
-      const fps = 30;
+      const fps = 18;
       const quality = Number(document.getElementById('quality').value);
       const widthSetting = document.getElementById('outputWidth').value;
 
@@ -303,7 +303,7 @@
       setStatus('Generating GIF...', 0);
 
       const gif = new GIF({
-        workers: 2,
+        workers: 4,
         quality,
         width: outputWidth,
         height: outputHeight,
