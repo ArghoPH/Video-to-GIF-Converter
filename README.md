@@ -179,9 +179,10 @@ If you want major changes:
 
 ---
 
-# 📄 License
 
-MIT License
+# 📄 Copyright
+
+    All Right Reserved by Argho 
 
 ---
 
